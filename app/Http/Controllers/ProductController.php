@@ -10,7 +10,11 @@ class ProductController extends Controller
     public function getAll()
     {
         return response()->json([
-            'data' => Product::all(),
+            // Using the with method to attach the reviews
+            // relationship
+            // When using with, we can't use all(), we must use
+            // get() instead
+            'data' => Product::with('reviews')->get(),
             'message' => 'success'
         ]);
     }
