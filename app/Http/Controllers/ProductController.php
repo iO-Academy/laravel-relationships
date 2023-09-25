@@ -14,7 +14,9 @@ class ProductController extends Controller
             // relationship
             // When using with, we can't use all(), we must use
             // get() instead
-            'data' => Product::with('reviews')->get(),
+            // When we have multiple relationships, we pass with
+            // an array instead of a string
+            'data' => Product::with(['reviews', 'category'])->get(),
             'message' => 'success'
         ]);
     }
@@ -24,13 +26,15 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0'
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:category,id'
         ]);
 
         $product = new Product();
         $product->name = $request->name;
         $product->description = $request->description;
         $product->price = $request->price;
+        $product->category_id = $request->category_id;
 
         if ($product->save()) {
             return response()->json([
