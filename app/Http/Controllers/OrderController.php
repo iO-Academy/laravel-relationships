@@ -11,7 +11,7 @@ class OrderController extends Controller
     {
         return response()->json([
             // Using makeHidden to hide fields in the Order (only works for the parent model)
-            'data' => Order::with('products:id,name,price')->get()->makeHidden(['created_at', 'updated_at']),
+            'data' => Order::with(['products:id,name,price', 'customer'])->get()->makeHidden(['created_at', 'updated_at']),
             'message' => 'success'
         ]);
     }
@@ -19,16 +19,14 @@ class OrderController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            'customer' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
             'product_ids' => 'required|array',
-            'product_ids.*' => 'exists:products,id' // product_ids.* is validating each item inside the array
+            'product_ids.*' => 'exists:products,id', // product_ids.* is validating each item inside the array
+            'customer_id' => 'required|exists:customers,id'
         ]);
 
 
         $order = new Order();
-        $order->customer = $request->customer;
-        $order->address = $request->address;
+        $order->customer_id = $request->customer_id;
 
         $success = $order->save(); // We need to save the new
         // model first so it has an id
