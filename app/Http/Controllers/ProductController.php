@@ -16,7 +16,12 @@ class ProductController extends Controller
             // get() instead
             // When we have multiple relationships, we pass with
             // an array instead of a string
-            'data' => Product::with(['reviews', 'category'])->get(),
+            // We can get specific fields from a relationship using a :
+                // and then a list of the fields we want
+            // Because the relationship with a review belongs to the reviews table, you need to make sure
+                // you select the foreign key
+            // Categories are controlled by product, so you there is no foreign key to ignore
+            'data' => Product::with(['reviews:text,name,stars,product_id', 'category:id,name', 'orders'])->get(),
             'message' => 'success'
         ]);
     }
