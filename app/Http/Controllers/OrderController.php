@@ -3,15 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    protected OrderService $orderService;
+
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
+
     public function getAll() 
     {
+        $orders = Order::with(['products:id,name,price', 'customer'])->get()->makeHidden(['created_at', 'updated_at']);
+        
+        $total = $this->orderService->calculateValueOfOrders($orders);
+        
         return response()->json([
-            // Using makeHidden to hide fields in the Order (only works for the parent model)
-            'data' => Order::with(['products:id,name,price', 'customer'])->get()->makeHidden(['created_at', 'updated_at']),
+            'data' => [
+                'orders' => $orders,
+                'total' => $total
+            ],
             'message' => 'success'
         ]);
     }
